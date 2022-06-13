@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: 
+  name: ingress-srv
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  rules:
+    - host: bouquetshop.com
+      http:
+        paths:
+          - path: /api/flowers/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: flowers-srv
+                port: 
+                  number: 3000
+          - path: /api/bouquets/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: bouquet-srv
+                port: 
+                  number: 3000
+          - path: /api/orders/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: order-srv
+                port: 
+                  number: 3000
+          - path: /api/users/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: users-srv
+                port: 
+                  number: 3000
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: client-srv
+                port: 
+                  number: 3000

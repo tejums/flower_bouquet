@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bouquet-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bouquet
+  template:
+    metadata:
+      labels:
+        app: bouquet
+    spec:
+      containers:
+        - name: bouquet
+          image: thejaswinims/bouquet
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: bouquetshop
+            - name: MONGO_URI
+              value: 'mongodb://bouquet-mongo-srv:27017/bouquet'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bouquet-srv
+spec:
+  selector:
+    app: bouquet
+  ports:
+    - name: bouquet
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flowers-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flowers
+  template:
+    metadata:
+      labels:
+        app: flowers
+    spec:
+      containers:
+        - name: flowers
+          image: thejaswinims/flowers
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: bouquetshop
+            - name: MONGO_URI
+              value: 'mongodb://flowers-mongo-srv:27017/flowers'
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flowers-srv
+spec:
+  selector:
+    app: flowers
+  ports:
+    - name: flowers
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
